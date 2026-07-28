@@ -319,6 +319,7 @@
             border: 1px solid #E2E8F0;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
             overflow: hidden;
+            flex-shrink: 0;
         }
 
         .table-card-header {
