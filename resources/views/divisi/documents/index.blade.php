@@ -991,7 +991,7 @@
                             @endphp
                             <div style="width:100%; display:flex; flex-direction:column; align-items:center;">
                                 <div class="doc-icon-wrapper">
-                                    <div onclick="showPreview('{{ $file->id }}', '{{ addslashes($file->original_name) }}', '{{ addslashes($file->creator->name ?? 'System') }}', '{{ addslashes($file->division->name ?? '-') }}', '{{ $file->created_at->format('d/m/y') }}', '{{ $file->extension }}', '{{ round($file->size / 1024, 2) }} KB', '{{ $file->visibility }}', {{ $canEdit }}, '{{ $fileUrl }}', '{{ $downloadUrl }}')"
+                                    <div onclick="showPreview('{{ $file->id }}', '{{ addslashes($file->original_name) }}', '{{ addslashes($file->creator->name ?? 'System') }}', '{{ addslashes($file->division->name ?? '-') }}', '{{ $file->created_at->format('d/m/y') }}', '{{ $file->extension }}', '{{ round($file->size / 1024, 2) }} KB', '{{ $file->visibility }}', {{ $canEdit }}, '{{ $fileUrl }}', '{{ $downloadUrl }}', '{{ asset('storage/' . $file->file_path) }}')"
                                         style="display:flex; justify-content:center; align-items:center;">
                                         <svg class="doc-icon-svg" viewBox="0 0 24 30" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -1016,7 +1016,7 @@
                                     </div>
                                 </div>
                                 <div class="doc-card-title" title="{{ $file->original_name }}"
-                                    onclick="showPreview('{{ $file->id }}', '{{ addslashes($file->original_name) }}', '{{ addslashes($file->creator->name ?? 'System') }}', '{{ addslashes($file->division->name ?? '-') }}', '{{ $file->created_at->format('d/m/y') }}', '{{ $file->extension }}', '{{ round($file->size / 1024, 2) }} KB', '{{ $file->visibility }}', {{ $canEdit }}, '{{ $fileUrl }}', '{{ $downloadUrl }}')"
+                                    onclick="showPreview('{{ $file->id }}', '{{ addslashes($file->original_name) }}', '{{ addslashes($file->creator->name ?? 'System') }}', '{{ addslashes($file->division->name ?? '-') }}', '{{ $file->created_at->format('d/m/y') }}', '{{ $file->extension }}', '{{ round($file->size / 1024, 2) }} KB', '{{ $file->visibility }}', {{ $canEdit }}, '{{ $fileUrl }}', '{{ $downloadUrl }}', '{{ asset('storage/' . $file->file_path) }}')"
                                     style="cursor:pointer;">
                                     {{ \Illuminate\Support\Str::limit($file->name, 20) }}
                                 </div>
@@ -1264,6 +1264,7 @@
         let selectedId = null;
         let currentFileUrl = '';
         let currentDownloadUrl = '';
+        let currentDirectUrl = '';
 
         // =========================================================
         // Search Helpers
@@ -1299,7 +1300,7 @@
         // =========================================================
         // showPreview — called when user clicks a card
         // =========================================================
-        function showPreview(id, name, author, division, date, type, size, visibility, canEdit, fileUrl, downloadUrl) {
+        function showPreview(id, name, author, division, date, type, size, visibility, canEdit, fileUrl, downloadUrl, directUrl = '') {
             // Deselect all, select clicked
             document.querySelectorAll('.doc-card').forEach(el => el.classList.remove('selected'));
             const activeCardId = type === 'Folder' ? 'card-folder-' + id : 'card-file-' + id;
@@ -1319,6 +1320,7 @@
             selectedId = id;
             currentFileUrl = fileUrl;
             currentDownloadUrl = downloadUrl;
+            currentDirectUrl = directUrl;
 
             // Show sidebar actions
             document.getElementById('sidebar-actions').style.display = 'flex';
@@ -1420,7 +1422,7 @@
                 } else {
                     // Jika di hosting (internet publik), gunakan Google Docs Viewer
                     const iframe = document.createElement('iframe');
-                    iframe.src = 'https://docs.google.com/viewer?url=' + encodeURIComponent(currentFileUrl) + '&embedded=true';
+                    iframe.src = 'https://docs.google.com/viewer?url=' + encodeURIComponent(currentDirectUrl) + '&embedded=true';
                     iframe.style.cssText = 'width:100%;height:100%;border:none;';
                     frameEl.appendChild(iframe);
                 }
