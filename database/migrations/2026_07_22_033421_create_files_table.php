@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('extension');
             $table->foreignId('folder_id')->nullable()->constrained('folders')->cascadeOnDelete();
             $table->foreignId('division_id')->constrained('divisions')->cascadeOnDelete();
-            $table->enum('visibility', ['private', 'public'])->default('private');
+            $table->enum('visibility', ['private', 'public'])->default('public');
             $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
             $table->softDeletes();
