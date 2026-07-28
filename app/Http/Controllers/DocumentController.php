@@ -683,7 +683,7 @@ class DocumentController extends Controller
         $totalStorage = File::where('division_id', $divisionId)->sum('size');
         $publicFiles  = File::where('division_id', $divisionId)->where('visibility', 'public')->count();
 
-        $maxStorage = 50 * 1024 * 1024 * 1024; // 50 GB
+        $maxStorage = env('MAX_STORAGE_GB', 50) * 1024 * 1024 * 1024; // Default 50 GB
         $storagePct = min(100, round(($totalStorage / $maxStorage) * 100, 1));
 
         $divisionUserIds = $divisionId ? User::where('division_id', $divisionId)->pluck('id') : [$user->id];
@@ -736,12 +736,13 @@ class DocumentController extends Controller
         }
         if (!$divisionId || Auth::user()->role === 'admin') return;
 
-        $limitBytes  = 50 * 1024 * 1024 * 1024; // 50 GB limit per division
+        $limitGB = env('MAX_STORAGE_GB', 50);
+        $limitBytes  = $limitGB * 1024 * 1024 * 1024; // Default 50 GB limit per division
         $currentUsed = File::where('division_id', $divisionId)->sum('size');
 
         if (($currentUsed + $incomingBytes) > $limitBytes) {
             $usedGB = round($currentUsed / 1073741824, 2);
-            abort(422, "Kapasitas penyimpanan divisi Anda ({$usedGB} GB / 50 GB) telah penuh. Harap hapus file yang tidak terpakai dari Sampah.");
+            abort(422, "Kapasitas penyimpanan divisi Anda ({$usedGB} GB / {$limitGB} GB) telah penuh. Harap hapus file yang tidak terpakai dari Sampah.");
         }
     }
 }

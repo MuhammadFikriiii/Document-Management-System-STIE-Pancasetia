@@ -1402,21 +1402,28 @@
                 frameEl.appendChild(iframe);
 
             } else if (officeExts.includes(ext)) {
-                // Office docs: Google Docs Viewer needs a PUBLIC internet URL.
-                // On localhost this won't work — show a helpful message with download option.
-                frameEl.innerHTML = `
-                    <div class="preview-unsupported">
-                        <i class="fas fa-file-word" style="font-size:50px;color:#1080D0;margin-bottom:15px;"></i>
-                        <p style="font-weight:600;margin-bottom:8px;">Preview Office Dokumen</p>
-                        <p style="font-size:13px;color:#888;margin-bottom:20px;">
-                            Preview DOCX/XLSX memerlukan koneksi internet publik.<br>
-                            Di <b>localhost</b>, silakan gunakan tombol download.
-                        </p>
-                        <a href="${currentDownloadUrl}" class="btn-download"
-                            style="padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;background:#F0FDF4;color:#16a34a;border:1px solid #bbf7d0;font-weight:600;">
-                            <i class="fas fa-download"></i> Download & Buka
-                        </a>
-                    </div>`;
+                // Jika di localhost, tampilkan tombol download
+                if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                    frameEl.innerHTML = `
+                        <div class="preview-unsupported">
+                            <i class="fas fa-file-word" style="font-size:50px;color:#1080D0;margin-bottom:15px;"></i>
+                            <p style="font-weight:600;margin-bottom:8px;">Preview Office Dokumen</p>
+                            <p style="font-size:13px;color:#888;margin-bottom:20px;">
+                                Preview DOCX/XLSX memerlukan koneksi internet publik.<br>
+                                Di <b>localhost</b>, silakan gunakan tombol download.
+                            </p>
+                            <a href="${currentDownloadUrl}" class="btn-download"
+                                style="padding:10px 20px;border-radius:8px;text-decoration:none;display:inline-flex;align-items:center;gap:8px;background:#F0FDF4;color:#16a34a;border:1px solid #bbf7d0;font-weight:600;">
+                                <i class="fas fa-download"></i> Download & Buka
+                            </a>
+                        </div>`;
+                } else {
+                    // Jika di hosting (internet publik), gunakan Google Docs Viewer
+                    const iframe = document.createElement('iframe');
+                    iframe.src = 'https://docs.google.com/viewer?url=' + encodeURIComponent(currentFileUrl) + '&embedded=true';
+                    iframe.style.cssText = 'width:100%;height:100%;border:none;';
+                    frameEl.appendChild(iframe);
+                }
             } else {
                 frameEl.innerHTML = `
                     <div class="preview-unsupported">
