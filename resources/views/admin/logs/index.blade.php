@@ -304,7 +304,7 @@
                     <!-- Filter by Action -->
                     <div class="select-box">
                         <select name="action">
-                            <option value="">-- Semua Jenis Aksi --</option>
+                            <option value="">Semua Jenis Aksi</option>
                             @foreach($actionOptions as $actKey => $actLabel)
                                 <option value="{{ $actKey }}" {{ ($action ?? '') == $actKey ? 'selected' : '' }}>
                                     {{ $actLabel }}
@@ -316,7 +316,7 @@
                     <!-- Filter by User -->
                     <div class="select-box">
                         <select name="user_id">
-                            <option value="">-- Semua Pengguna --</option>
+                            <option value="">Semua Pengguna</option>
                             @foreach($allUsers as $u)
                                 <option value="{{ $u->id }}" {{ ($userId ?? '') == $u->id ? 'selected' : '' }}>
                                     {{ $u->name }}

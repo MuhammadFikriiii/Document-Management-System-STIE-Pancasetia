@@ -51,9 +51,6 @@
             <a href="{{ route('divisi.documents') }}" class="nav-item {{ request()->routeIs('divisi.documents*') ? 'active' : '' }}">
                 <i class="fas fa-file-alt"></i> Document
             </a>
-            <a href="{{ route('divisi.trash') }}" class="nav-item {{ request()->routeIs('divisi.trash*') ? 'active' : '' }}">
-                <i class="fas fa-trash-alt"></i> Sampah
-            </a>
         </div>
         <div class="sidebar-footer">
             <div style="padding: 12px 16px; margin-bottom: 6px; border-radius: 10px; background: rgba(255,255,255,0.07); display: flex; align-items: center; gap: 10px;">
