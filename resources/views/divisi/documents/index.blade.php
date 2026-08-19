@@ -849,6 +849,25 @@
                     </script>
                 @endif
 
+                @if(session('share_success'))
+                    <script>
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            icon: 'success',
+                            html: `
+                                <p style="margin-bottom:15px; font-size:14px; font-weight:500; color:#444;">{{ session('share_success')['message'] }}</p>
+                                <p style="margin-bottom:8px; font-size:13px; color:#555;">Tautan publik tersedia:</p>
+                                <input type="text" id="swal-share-link" value="{{ url('/share/folder/' . session('share_success')['token']) }}" readonly style="width: 100%; text-align: center; margin-bottom: 15px; padding: 12px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; font-size:14px; color:#333; outline:none;" onclick="this.select();">
+                                <button type="button" onclick="document.getElementById('swal-share-link').select(); document.execCommand('copy'); Swal.showValidationMessage('Link berhasil disalin!')" style="width: 100%; padding: 12px; background: #BA1D2E; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+                                    <i class="fas fa-copy"></i> Salin Link
+                                </button>
+                            `,
+                            showConfirmButton: false,
+                            showCloseButton: true
+                        });
+                    </script>
+                @endif
+
                 @if(session('error'))
                     <script>
                         Swal.fire({
@@ -928,6 +947,9 @@
                                 <button id="global-edit-btn" class="dropdown-item edit">
                                     <i class="fas fa-pen"></i> Edit
                                 </button>
+                                <button id="global-share-btn" class="dropdown-item" style="color: #0284c7; display: none;">
+                                    <i class="fas fa-share-alt"></i> Share
+                                </button>
                                 <button id="global-move-btn" class="dropdown-item move">
                                     <i class="fas fa-arrows-alt"></i> Pindahkan
                                 </button>
@@ -954,7 +976,7 @@
                                 @endphp
                                 <div class="doc-icon-wrapper" style="color: {{ $folderColor }};">
                                     <div ondblclick="window.location.href='{{ route($docRoute, ['folder_id' => $folder->id]) }}'"
-                                        onclick="showPreview('{{ $folder->id }}', '{{ addslashes($folder->name) }}', '{{ addslashes($folder->creator->name ?? 'System') }}', '{{ addslashes($folder->division->name ?? '-') }}', '{{ $folder->created_at->format('d/m/y') }}', 'Folder', '-', '{{ $folder->visibility }}', {{ $canEdit }}, '', '')"
+                                        onclick="showPreview('{{ $folder->id }}', '{{ addslashes($folder->name) }}', '{{ addslashes($folder->creator->name ?? 'System') }}', '{{ addslashes($folder->division->name ?? '-') }}', '{{ $folder->created_at->format('d/m/y') }}', 'Folder', '-', '{{ $folder->visibility }}', {{ $canEdit }}, '', '', '{{ $folder->share_token ?? '' }}')"
                                         style="display:flex; justify-content:center; align-items:center; cursor:pointer;">
                                         <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
                                             class="custom-folder-icon">
@@ -972,7 +994,7 @@
                                 </div>
                                 <div class="doc-card-title" title="{{ $folder->name }}"
                                     ondblclick="window.location.href='{{ route($docRoute, ['folder_id' => $folder->id]) }}'"
-                                    onclick="showPreview('{{ $folder->id }}', '{{ addslashes($folder->name) }}', '{{ addslashes($folder->creator->name ?? 'System') }}', '{{ addslashes($folder->division->name ?? '-') }}', '{{ $folder->created_at->format('d/m/y') }}', 'Folder', '-', '{{ $folder->visibility }}', {{ $canEdit }}, '', '')"
+                                    onclick="showPreview('{{ $folder->id }}', '{{ addslashes($folder->name) }}', '{{ addslashes($folder->creator->name ?? 'System') }}', '{{ addslashes($folder->division->name ?? '-') }}', '{{ $folder->created_at->format('d/m/y') }}', 'Folder', '-', '{{ $folder->visibility }}', {{ $canEdit }}, '', '', '{{ $folder->share_token ?? '' }}')"
                                     style="cursor:pointer;">
                                     {{ $folder->name }}
                                 </div>
@@ -991,7 +1013,7 @@
                             @endphp
                             <div style="width:100%; display:flex; flex-direction:column; align-items:center;">
                                 <div class="doc-icon-wrapper">
-                                    <div onclick="showPreview('{{ $file->id }}', '{{ addslashes($file->original_name) }}', '{{ addslashes($file->creator->name ?? 'System') }}', '{{ addslashes($file->division->name ?? '-') }}', '{{ $file->created_at->format('d/m/y') }}', '{{ $file->extension }}', '{{ round($file->size / 1024, 2) }} KB', '{{ $file->visibility }}', {{ $canEdit }}, '{{ $fileUrl }}', '{{ $downloadUrl }}', '{{ asset('storage/' . $file->file_path) }}')"
+                                    <div onclick="showPreview('{{ $file->id }}', '{{ addslashes($file->original_name) }}', '{{ addslashes($file->creator->name ?? 'System') }}', '{{ addslashes($file->division->name ?? '-') }}', '{{ $file->created_at->format('d/m/y') }}', '{{ $file->extension }}', '{{ round($file->size / 1024, 2) }} KB', '{{ $file->visibility }}', {{ $canEdit }}, '{{ $fileUrl }}', '{{ $downloadUrl }}', '{{ asset('storage/' . $file->file_path) }}', '')"
                                         style="display:flex; justify-content:center; align-items:center;">
                                         <svg class="doc-icon-svg" viewBox="0 0 24 30" fill="none"
                                             xmlns="http://www.w3.org/2000/svg">
@@ -1016,7 +1038,7 @@
                                     </div>
                                 </div>
                                 <div class="doc-card-title" title="{{ $file->original_name }}"
-                                    onclick="showPreview('{{ $file->id }}', '{{ addslashes($file->original_name) }}', '{{ addslashes($file->creator->name ?? 'System') }}', '{{ addslashes($file->division->name ?? '-') }}', '{{ $file->created_at->format('d/m/y') }}', '{{ $file->extension }}', '{{ round($file->size / 1024, 2) }} KB', '{{ $file->visibility }}', {{ $canEdit }}, '{{ $fileUrl }}', '{{ $downloadUrl }}', '{{ asset('storage/' . $file->file_path) }}')"
+                                    onclick="showPreview('{{ $file->id }}', '{{ addslashes($file->original_name) }}', '{{ addslashes($file->creator->name ?? 'System') }}', '{{ addslashes($file->division->name ?? '-') }}', '{{ $file->created_at->format('d/m/y') }}', '{{ $file->extension }}', '{{ round($file->size / 1024, 2) }} KB', '{{ $file->visibility }}', {{ $canEdit }}, '{{ $fileUrl }}', '{{ $downloadUrl }}', '{{ asset('storage/' . $file->file_path) }}', '')"
                                     style="cursor:pointer;">
                                     {{ \Illuminate\Support\Str::limit($file->name, 20) }}
                                 </div>
@@ -1129,6 +1151,95 @@
         </div>
     </div>
 
+    <!-- Upload Progress Overlay -->
+    <div id="upload-progress-overlay" style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.65);
+        backdrop-filter: blur(6px);
+        z-index: 9999;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 24px;
+    ">
+        <div style="
+            background: #fff;
+            border-radius: 20px;
+            padding: 40px 48px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            min-width: 340px;
+            max-width: 90vw;
+        ">
+            <!-- Animated folder icon -->
+            <div style="position:relative;width:72px;height:72px;">
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"
+                    style="width:72px;height:72px;animation:folderPulse 1.2s ease-in-out infinite;">
+                    <path d="M10,25 h25 l10,10 h45 a5,5 0 0 1 5,5 v40 a5,5 0 0 1 -5,5 h-80 a5,5 0 0 1 -5,-5 v-50 a5,5 0 0 1 5,-5 Z"
+                        fill="#3b82f6" opacity="0.85"/>
+                    <path d="M5,45 h90 l-5,40 h-80 Z" fill="#2563eb"/>
+                    <!-- flying file -->
+                    <rect id="flyFile" x="38" y="52" width="24" height="18" rx="3"
+                        fill="white" opacity="0.9"
+                        style="animation:flyUp 1.2s ease-in-out infinite;"/>
+                </svg>
+            </div>
+
+            <div style="text-align:center;">
+                <p style="font-weight:700;font-size:17px;color:#1e293b;margin:0 0 4px;">Mengupload Folder...</p>
+                <p id="upload-status-text" style="font-size:13px;color:#64748b;margin:0;">Mempersiapkan file...</p>
+            </div>
+
+            <!-- Progress bar -->
+            <div style="width:100%;background:#e2e8f0;border-radius:99px;height:10px;overflow:hidden;">
+                <div id="upload-progress-bar" style="
+                    height:100%;
+                    width:0%;
+                    border-radius:99px;
+                    background: linear-gradient(90deg, #3b82f6, #6366f1);
+                    transition: width 0.4s ease;
+                    position:relative;
+                    overflow:hidden;
+                ">
+                    <!-- shimmer -->
+                    <span style="
+                        position:absolute;top:0;left:-100%;width:100%;height:100%;
+                        background:linear-gradient(90deg,transparent,rgba(255,255,255,0.45),transparent);
+                        animation: shimmer 1.2s infinite;
+                    "></span>
+                </div>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:8px;">
+                <span id="upload-file-count" style="font-size:13px;font-weight:600;color:#3b82f6;">0</span>
+                <span style="font-size:13px;color:#94a3b8;">/ <span id="upload-file-total">0</span> file siap dikirim</span>
+            </div>
+
+            <p style="font-size:11px;color:#cbd5e1;margin:0;">Mohon tunggu, jangan tutup halaman ini.</p>
+        </div>
+    </div>
+
+    <style>
+        @keyframes folderPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
+        }
+        @keyframes flyUp {
+            0%   { transform: translateY(0) scale(1); opacity: 0.9; }
+            50%  { transform: translateY(-18px) scale(0.85); opacity: 0.5; }
+            100% { transform: translateY(0) scale(1); opacity: 0.9; }
+        }
+        @keyframes shimmer {
+            0%   { left: -100%; }
+            100% { left: 200%; }
+        }
+    </style>
+
     <!-- Modal Upload Folder -->
     <div class="modal-overlay" id="modal-upload-folder">
         <div class="modal-content">
@@ -1142,11 +1253,30 @@
                     <label>Select Local Folder</label>
                     <input type="file" name="files[]" id="folder-input" class="form-control" webkitdirectory directory
                         multiple required>
+                    <!-- File count preview -->
+                    <div id="folder-file-preview" style="
+                        display:none;
+                        margin-top:10px;
+                        padding:10px 14px;
+                        background:#eff6ff;
+                        border:1px solid #bfdbfe;
+                        border-radius:10px;
+                        font-size:13px;
+                        color:#1d4ed8;
+                        display:none;
+                        align-items:center;
+                        gap:8px;
+                    ">
+                        <i class="fas fa-file-alt"></i>
+                        <span id="folder-file-preview-text"></span>
+                    </div>
                 </div>
                 <div class="modal-actions">
-                    <button type="button" class="action-btn"
-                        onclick="document.getElementById('modal-upload-folder').style.display='none'">Cancel</button>
-                    <button type="submit" class="action-btn primary">Upload Folder</button>
+                    <button type="button" class="action-btn" id="cancel-folder-upload-btn"
+                        onclick="document.getElementById('modal-upload-folder').style.display='none'; document.getElementById('folder-input').value=''; document.getElementById('folder-file-preview').style.display='none';">Cancel</button>
+                    <button type="submit" class="action-btn primary" id="submit-folder-upload-btn">
+                        <i class="fas fa-cloud-upload-alt"></i> Upload Folder
+                    </button>
                 </div>
             </form>
         </div>
@@ -1243,6 +1373,22 @@
         </div>
     </div>
 
+    <!-- Share Folder Modal -->
+    <div class="modal-overlay" id="shareFolderModal">
+        <div class="modal-content">
+            <h3><i class="fas fa-share-alt" style="color:#0284c7;"></i> Share Folder</h3>
+            <div id="share-info"></div>
+            <form id="shareFolderForm" method="POST">
+                @csrf
+                <input type="hidden" name="action" id="share_action" value="generate">
+                <div class="modal-actions" id="share-modal-actions">
+                    <button type="button" class="action-btn" onclick="document.getElementById('shareFolderModal').style.display='none'">Tutup</button>
+                    <button type="submit" class="action-btn primary" id="share-submit-btn">Buat Link Publik</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- Document Preview Modal -->
     <div class="preview-modal-overlay" id="previewDocModal">
         <div class="preview-modal-header">
@@ -1300,7 +1446,7 @@
         // =========================================================
         // showPreview — called when user clicks a card
         // =========================================================
-        function showPreview(id, name, author, division, date, type, size, visibility, canEdit, fileUrl, downloadUrl, directUrl = '') {
+        function showPreview(id, name, author, division, date, type, size, visibility, canEdit, fileUrl, downloadUrl, directUrl = '', shareToken = '') {
             // Deselect all, select clicked
             document.querySelectorAll('.doc-card').forEach(el => el.classList.remove('selected'));
             const activeCardId = type === 'Folder' ? 'card-folder-' + id : 'card-file-' + id;
@@ -1361,10 +1507,19 @@
                     editBtn.onclick = () => openRenameFolderModal(id, name, visibility);
                     globalMoveBtn.onclick = () => openMoveFolderModal(id);
                     deleteForm.action = '/divisi/documents/folder/' + id;
+                    
+                    const shareBtn = document.getElementById('global-share-btn');
+                    if (shareBtn) {
+                        shareBtn.style.display = 'flex';
+                        shareBtn.onclick = () => openShareModal(id, name, shareToken);
+                    }
                 } else {
                     editBtn.onclick = () => openRenameFileModal(id, name, visibility);
                     globalMoveBtn.onclick = () => openMoveFileModal(id);
                     deleteForm.action = '/divisi/documents/file/' + id;
+                    
+                    const shareBtn = document.getElementById('global-share-btn');
+                    if (shareBtn) shareBtn.style.display = 'none';
                 }
             } else {
                 globalMenuBtn.disabled = true;
@@ -1372,6 +1527,39 @@
                 globalMenuBtn.style.opacity = '0.4';
                 document.getElementById('global-menu-dropdown').style.display = 'none';
             }
+        }
+
+        // =========================================================
+        // Share Modal Logic
+        // =========================================================
+        function openShareModal(id, name, token) {
+            document.getElementById('shareFolderForm').action = '/divisi/documents/folder/' + id + '/share';
+            
+            const infoDiv = document.getElementById('share-info');
+            const submitBtn = document.getElementById('share-submit-btn');
+            const actionInput = document.getElementById('share_action');
+            
+            if (token) {
+                const shareUrl = window.location.origin + '/share/folder/' + token;
+                infoDiv.innerHTML = `
+                    <p style="margin-bottom:10px; font-size:13px; color:#555;">Tautan publik tersedia untuk folder <strong>${name}</strong>:</p>
+                    <input type="text" class="form-control" value="${shareUrl}" readonly style="margin-bottom:15px; background:#f9fafb; cursor:copy;" onclick="this.select(); document.execCommand('copy'); alert('Link disalin ke clipboard!');">
+                `;
+                submitBtn.innerText = 'Hapus Tautan';
+                submitBtn.className = 'action-btn';
+                submitBtn.style.backgroundColor = '#ef4444';
+                submitBtn.style.color = 'white';
+                actionInput.value = 'revoke';
+            } else {
+                infoDiv.innerHTML = `<p style="margin-bottom:15px; font-size:13px; color:#555;">Buat tautan publik untuk membagikan folder <strong>${name}</strong> kepada orang lain tanpa perlu login.</p>`;
+                submitBtn.innerText = 'Buat Link Publik';
+                submitBtn.className = 'action-btn primary';
+                submitBtn.style.backgroundColor = '';
+                submitBtn.style.color = '';
+                actionInput.value = 'generate';
+            }
+            
+            document.getElementById('shareFolderModal').style.display = 'flex';
         }
 
         // =========================================================
@@ -1456,18 +1644,78 @@
         });
 
         // =========================================================
-        // Folder Upload Interceptor
+        // Show file count preview when folder is selected
+        // =========================================================
+        document.getElementById('folder-input').addEventListener('change', function () {
+            const count = this.files.length;
+            const preview = document.getElementById('folder-file-preview');
+            const previewText = document.getElementById('folder-file-preview-text');
+            if (count > 0) {
+                previewText.textContent = count + ' file terdeteksi dalam folder yang dipilih';
+                preview.style.display = 'flex';
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+
+        // =========================================================
+        // Folder Upload Interceptor — FIXED (no double-submit bug)
         // =========================================================
         document.getElementById('upload-folder-form').addEventListener('submit', function (e) {
             const fileInput = document.getElementById('folder-input');
             const files = fileInput.files;
+
+            if (!files || files.length === 0) return;
+
+            // ── FIX: Remove any previously injected paths[] inputs to prevent duplication ──
+            this.querySelectorAll('input[name="paths[]"]').forEach(el => el.remove());
+
+            // Inject fresh path inputs
             for (let i = 0; i < files.length; i++) {
                 const pathInput = document.createElement('input');
                 pathInput.type = 'hidden';
                 pathInput.name = 'paths[]';
-                pathInput.value = files[i].webkitRelativePath;
+                pathInput.value = files[i].webkitRelativePath || files[i].name;
                 this.appendChild(pathInput);
             }
+
+            // ── Disable submit button to prevent double-submit ──
+            const submitBtn = document.getElementById('submit-folder-upload-btn');
+            const cancelBtn = document.getElementById('cancel-folder-upload-btn');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            cancelBtn.disabled = true;
+
+            // ── Show animated upload progress overlay ──
+            const overlay    = document.getElementById('upload-progress-overlay');
+            const bar        = document.getElementById('upload-progress-bar');
+            const statusText = document.getElementById('upload-status-text');
+            const fileCount  = document.getElementById('upload-file-count');
+            const fileTotal  = document.getElementById('upload-file-total');
+
+            overlay.style.display = 'flex';
+            fileTotal.textContent = files.length;
+            fileCount.textContent = 0;
+            bar.style.width = '0%';
+
+            // Simulate step-by-step progress (real XHR would be better, but form POST is fine)
+            const total = files.length;
+            let simulated = 0;
+            const interval = setInterval(() => {
+                if (simulated < total) {
+                    simulated = Math.min(simulated + Math.ceil(total * 0.05) + 1, total);
+                    fileCount.textContent = simulated;
+                    const pct = Math.round((simulated / total) * 90); // cap at 90% until server responds
+                    bar.style.width = pct + '%';
+                    if (simulated >= total) {
+                        statusText.textContent = 'Mengirim ke server...';
+                        bar.style.width = '95%';
+                        clearInterval(interval);
+                    } else {
+                        statusText.textContent = 'Memproses ' + simulated + ' dari ' + total + ' file...';
+                    }
+                }
+            }, 120);
         });
 
         // =========================================================

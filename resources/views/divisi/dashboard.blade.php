@@ -636,10 +636,11 @@
                 </div>
 
                 <div class="stat-card">
-                    <div class="stat-icon amber"><i class="fas fa-globe"></i></div>
+                    <div class="stat-icon amber"><i class="fas fa-users"></i></div>
                     <div class="stat-info">
-                        <p>File Publik Shared</p>
-                        <h3>{{ $publicFiles }}</h3>
+                        <p>Anggota Divisi</p>
+                        <h3>{{ $divisionMembers }}</h3>
+                        <span>anggota terdaftar</span>
                     </div>
                 </div>
 
@@ -665,7 +666,7 @@
                 <div class="card">
                     <div class="card-header">
                         <h3><i class="fas fa-clock" style="color:#BA1D2E;"></i> 5 File Terbaru Upload</h3>
-                        <a href="{{ route('divisi.documents') }}">Lihat Semua File &rarr;</a>
+                        <a href="{{ route('divisi.documents') }}">Lihat Semua File</a>
                     </div>
                     <div class="file-list">
                         @forelse($recentFiles as $file)
@@ -682,11 +683,6 @@
                                             {{ $file->creator->name ?? 'User' }} · {{ $file->created_at->diffForHumans() }}
                                         </div>
                                     </div>
-                                </div>
-                                <div>
-                                    <a href="{{ route('divisi.documents.downloadFile', $file->id) }}" class="btn-view">
-                                        <i class="fas fa-download"></i> Unduh
-                                    </a>
                                 </div>
                             </div>
                         @empty

@@ -681,7 +681,7 @@ class DocumentController extends Controller
         $totalFiles   = File::where('division_id', $divisionId)->count();
         $totalFolders = Folder::where('division_id', $divisionId)->count();
         $totalStorage = File::where('division_id', $divisionId)->sum('size');
-        $publicFiles  = File::where('division_id', $divisionId)->where('visibility', 'public')->count();
+        $divisionMembers = $divisionId ? User::where('division_id', $divisionId)->count() : 0;
 
         $maxStorage = env('MAX_STORAGE_GB', 50) * 1024 * 1024 * 1024; // Default 50 GB
         $storagePct = min(100, round(($totalStorage / $maxStorage) * 100, 1));
@@ -702,8 +702,45 @@ class DocumentController extends Controller
 
         return view('divisi.dashboard', compact(
             'user', 'totalFiles', 'totalFolders', 'totalStorage',
-            'publicFiles', 'storagePct', 'recentLogs', 'recentFiles'
+            'divisionMembers', 'storagePct', 'recentLogs', 'recentFiles'
         ));
+    }
+
+    /**
+     * Generate or revoke share link for a folder.
+     */
+    public function generateShareLink(Request $request, $id)
+    {
+        $folder = Folder::findOrFail($id);
+        
+        if (Auth::user()->role !== 'admin' && $folder->division_id !== Auth::user()->division_id) {
+            abort(403, 'Unauthorized action.');
+        }
+
+        $action = $request->input('action'); // 'generate' or 'revoke'
+        
+        if ($action === 'generate') {
+            if ($folder->share_token) {
+                $token = $folder->share_token;
+                $message = 'Tautan bagikan sudah tersedia.';
+            } else {
+                $token = \Illuminate\Support\Str::random(32);
+                $folder->update(['share_token' => $token]);
+                ActivityLog::record('share_folder', 'Membuat tautan publik untuk folder "' . $folder->name . '"');
+                $message = 'Tautan bagikan berhasil dibuat.';
+            }
+
+            return back()->with('share_success', [
+                'message' => $message,
+                'token' => $token
+            ]);
+        } else if ($action === 'revoke') {
+            $folder->update(['share_token' => null]);
+            ActivityLog::record('unshare_folder', 'Menghapus tautan publik untuk folder "' . $folder->name . '"');
+            return back()->with('success', 'Tautan bagikan berhasil dihapus.');
+        }
+        
+        return back()->with('error', 'Aksi tidak valid.');
     }
 
     /**

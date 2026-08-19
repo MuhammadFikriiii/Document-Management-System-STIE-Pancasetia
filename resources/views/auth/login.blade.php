@@ -70,6 +70,12 @@
             margin-bottom: 30px;
         }
 
+        .logo img {
+            width: 280px;
+            height: auto;
+            filter: brightness(0) invert(1);
+        }
+
         .hero-content {
             flex-grow: 1;
             display: flex;
@@ -536,7 +542,7 @@
     <!-- Left Panel -->
     <div class="left-panel">
         <div class="logo">
-            <i class="fas fa-cloud" style="color: #fff;"></i> STIE Pancasetia
+            <img src="{{ asset('images/logo-pancasetia.png') }}" alt="Logo STIE Pancasetia">
         </div>
 
         <div class="hero-content">

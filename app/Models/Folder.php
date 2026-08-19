@@ -14,7 +14,8 @@ class Folder extends Model
         'parent_id',
         'division_id',
         'visibility',
-        'created_by'
+        'created_by',
+        'share_token'
     ];
 
     public function parent()

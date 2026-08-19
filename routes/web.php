@@ -11,6 +11,11 @@ Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
+// Public Share Routes
+Route::get('/share/folder/{token}/{folder_id?}', [\App\Http\Controllers\PublicShareController::class, 'showFolder'])->name('share.folder');
+Route::get('/share/preview/file/{token}/{file_id}', [\App\Http\Controllers\PublicShareController::class, 'previewFile'])->name('share.previewFile');
+Route::get('/share/download/file/{token}/{file_id}', [\App\Http\Controllers\PublicShareController::class, 'downloadFile'])->name('share.downloadFile');
+
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->group(function () {
     Route::get('/dashboard', [\App\Http\Controllers\AdminController::class, 'dashboard'])->name('admin.dashboard');
 
@@ -50,6 +55,7 @@ Route::middleware(['auth', 'role:admin,divisi'])->prefix('divisi')->group(functi
 
     Route::post('/documents/folder', [\App\Http\Controllers\DocumentController::class, 'storeFolder'])->name('divisi.documents.storeFolder');
     Route::post('/documents/folder-upload', [\App\Http\Controllers\DocumentController::class, 'storeFolderUpload'])->name('divisi.documents.storeFolderUpload');
+    Route::post('/documents/folder/{id}/share', [\App\Http\Controllers\DocumentController::class, 'generateShareLink'])->name('divisi.documents.shareFolder');
     Route::post('/documents/file', [\App\Http\Controllers\DocumentController::class, 'storeFile'])->name('divisi.documents.storeFile');
     Route::patch('/documents/folder/{id}', [\App\Http\Controllers\DocumentController::class, 'updateFolder'])->name('divisi.documents.updateFolder');
     Route::patch('/documents/file/{id}', [\App\Http\Controllers\DocumentController::class, 'updateFile'])->name('divisi.documents.updateFile');
